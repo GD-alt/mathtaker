@@ -422,7 +422,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               margin: margins['topOnly'],
               child: Text(
-                'Select number of questions for the quiz:',
+                'Select number of questions for the quiz (x10):',
                 style: Theme.of(context).textTheme.titleSmall,
                 textAlign: TextAlign.center,
               ),
@@ -991,7 +991,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // canPop: problemIndex == 0,
+      canPop: problemIndex == 0,
       child: Scaffold(
         body: Center(
           child: Column(
