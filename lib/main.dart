@@ -22,14 +22,6 @@ int randInInterval(int min, int max) {
 
 final logger = Logger('main');
 
-extension DarkMode on BuildContext {
-  /// is dark mode currently enabled?
-  bool get isDarkMode {
-    final brightness = MediaQuery.of(this).platformBrightness;
-    return brightness == Brightness.dark;
-  }
-}
-
 final themes = {
   'light': ThemeData(
     colorScheme: ColorScheme(
@@ -70,7 +62,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mathtaker',
-      theme: themes[context.isDarkMode ? 'dark' : 'light'],
+      theme: themes['light'],
+      darkTheme: themes['dark'],
+      themeMode: ThemeMode.system,
       home: const HomePage(),
     );
   }
@@ -391,6 +385,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         );
                       },
+                      heroTag: 'info',
                       child: const Icon(Icons.info),
                     ),
                   ),
@@ -726,12 +721,12 @@ class QuizPage extends StatefulWidget {
               param2 = randInInterval(1, 10);
               break;
             case Difficulty.medium:
-              answer = randInInterval(0, 30);
-              param2 = randInInterval(1, 30);
+              answer = randInInterval(0, 40);
+              param2 = randInInterval(1, 40);
               break;
             case Difficulty.hard:
-              answer = randInInterval(0, 50);
-              param2 = randInInterval(1, 50);
+              answer = randInInterval(0, 85);
+              param2 = randInInterval(1, 85);
               break;
           }
 
@@ -851,21 +846,25 @@ class _QuizPageState extends State<QuizPage> {
       }
 
       if (inputText == widget.problems[problemIndex].answer.toString()) {
-        setState(() {
-          switch (widget.selectedDifficulty) {
-            case Difficulty.easy:
+        switch (widget.selectedDifficulty) {
+          case Difficulty.easy:
+            setState(() {
               _score += 1 + operationBonus;
-              break;
-            case Difficulty.medium:
+            });
+            break;
+          case Difficulty.medium:
+            setState(() {
               _score += 2 + operationBonus;
-              break;
-            case Difficulty.hard:
+            });
+            break;
+          case Difficulty.hard:
+            setState(() {
               _score += 3 + operationBonus;
-              break;
-          }
+            });
+            break;
+        }
 
           totalTime += widget.time - timerLeft;
-        });
       }
 
       setState(() {
@@ -918,10 +917,45 @@ class _QuizPageState extends State<QuizPage> {
       }
 
       else if (inputText == widget.problems[problemIndex].answer.toString()) {
-        setState(() {
-          _score++;
-          subtitleText = 'Correct! Your current score: $_score';
-        });
+        var operationBonus = 0;
+
+        switch (widget.problems[problemIndex].operator) {
+          case '+':
+            operationBonus = 0;
+            break;
+          case '–':
+            operationBonus = 0;
+            break;
+          case '×':
+            operationBonus = 1;
+            break;
+          case '÷':
+            operationBonus = 2;
+            break;
+        }
+
+        if (inputText == widget.problems[problemIndex].answer.toString()) {
+          switch (widget.selectedDifficulty) {
+            case Difficulty.easy:
+              setState(() {
+                _score += 1 + operationBonus;
+              });
+              break;
+            case Difficulty.medium:
+              setState(() {
+                _score += 2 + operationBonus;
+              });
+              break;
+            case Difficulty.hard:
+              setState(() {
+                _score += 3 + operationBonus;
+              });
+              break;
+          }
+
+            totalTime += widget.time - timerLeft;
+            subtitleText = 'Correct! Your current score: $_score';
+        }
       }
 
       else {
@@ -957,7 +991,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: problemIndex == 0,
+      // canPop: problemIndex == 0,
       child: Scaffold(
         body: Center(
           child: Column(
@@ -1031,7 +1065,7 @@ class _QuizPageState extends State<QuizPage> {
                 margin: margins['topOnly'],
                 child: FloatingActionButton(
                   onPressed: next,
-                  tooltip: 'Start',
+                  tooltip: 'Next',
                   child: Icon(_buttonIcon),
                 ),
               )
